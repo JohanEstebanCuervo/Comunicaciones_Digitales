@@ -18,7 +18,7 @@ def upsample(signal,N):
 
   return y
 
-def Decode_QPSK(signal,Fp,Fs,Tb): ##  Fp -> Frecuencia Portadora. Fs -> Frecuencia de muestreo. Tb -> Tiempo de Baudio
+def Decode_PSK(signal,Fp,Fs,Tb): ##  Fp -> Frecuencia Portadora. Fs -> Frecuencia de muestreo. Tb -> Tiempo de Baudio
                                   ##  Fs*Tb debe ser un numero entero  primera restricción
 
     t = np.linspace(0, len(signal)/Fs,len(signal))
@@ -29,21 +29,21 @@ def Decode_QPSK(signal,Fp,Fs,Tb): ##  Fp -> Frecuencia Portadora. Fs -> Frecuenc
     Y2 = signal*Portadoraq
     
     decobits1 = np.mean(np.reshape(Y1, (-1,int(Fs*Tb))),axis=1)*2
-    decobits2 = np.mean(np.reshape(Y2, (-1,int(Fs*Tb))),axis=1)*2
+    decobits2 = np.mean(np.reshape(Y2, (-1,int(Fs*Tb))),axis=1)*-2
     
     return np.reshape(np.concatenate((decobits1,decobits2)),(2,-1)).T
     
     
     
-Noise= 1
-muestras_simbolo= 23
+Noise= 0
+muestras_simbolo= 60
 tb = 1 # tiempo de bit
-Fp = 24
+Fp = 4
 ps = np.concatenate((np.zeros(muestras_simbolo),np.ones(muestras_simbolo),np.zeros(muestras_simbolo)))
 ts = np.linspace(-1,1+(muestras_simbolo-1)/muestras_simbolo,muestras_simbolo*3)
 
 
-Nbits = 500 #numero de bits
+Nbits = 3 #numero de bits
 
 bits1 = np.random.randint(0,2,Nbits) #Señal binaria de 6 bits
 bits_sample1 = upsample(bits1, muestras_simbolo)
@@ -83,7 +83,7 @@ SNR = 20*(np.log10(pows)-np.log10(powr))
 
 print('SNR = '+str(SNR)+'db')
 plt.plot(t,signal)
-
+plt.show()
 ####### decodificacion ############
 desfase= 0
 Portadorai = np.cos(2*np.pi*Fp*t+desfase)
@@ -115,6 +115,8 @@ bits2[np.where(bits2==0)]=-1
 plt.scatter(decobits1,decobits2)
 plt.scatter(bits1,bits2)
 
+
+puntos = Decode_PSK(signal, Fp, muestras_simbolo/tb, tb)
 
 
 
